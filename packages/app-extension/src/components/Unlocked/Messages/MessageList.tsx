@@ -30,8 +30,9 @@ export const MessageList = ({
           border: `${theme.custom.colors.borderFull}`,
         }}
       >
-        {activeChats.map((activeChat, index) => (
+        {activeChats.map((activeChat: any, index) => (
           <ChatListItem
+            dialectThreadId={activeChat.dialectThreadId}
             image={activeChat.remoteUserImage}
             username={activeChat.remoteUsername}
             userId={activeChat.remoteUserId}
@@ -54,6 +55,7 @@ function ChatListItem({
   isFirst,
   isLast,
   userId,
+  dialectThreadId,
 }: any) {
   const classes = useStyles();
   const theme = useCustomTheme();
@@ -78,6 +80,7 @@ function ChatListItem({
           title: `@${username}`,
           componentId: NAV_COMPONENT_MESSAGE_CHAT,
           componentProps: {
+            dialectThreadId,
             userId,
             username,
           },

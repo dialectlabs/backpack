@@ -12,6 +12,8 @@
     "@coral-xyz/react-xnft-dom-renderer": "*",
     "@coral-xyz/recoil": "*",
     "@coral-xyz/themes": "*",
+    "@dialectlabs/react-sdk": "^1.1.0-beta.8",
+    "@dialectlabs/react-sdk-blockchain-solana": "^1.0.0-beta.4",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@fontsource/inter": "^4.5.11",

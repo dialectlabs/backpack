@@ -13,6 +13,7 @@
   "dependencies": {
     "@coral-xyz/recoil": "*",
     "@coral-xyz/themes": "*",
+    "@dialectlabs/react-sdk": "^1.1.0-beta.8",
     "@giphy/js-fetch-api": "^4.4.0",
     "@giphy/react-components": "^6.2.0",
     "@mui/icons-material": "^5.10.14",

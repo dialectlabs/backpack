@@ -1,8 +1,9 @@
-import React, { useEffect, useRef,useState  } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import type { SubscriptionType } from "@coral-xyz/common";
+import { generateUniqueId } from "@coral-xyz/common";
+import { useDialectSdk, useThreadMessages } from "@dialectlabs/react-sdk";
 
-import type { EnrichedMessage } from "../ChatManager";
-import { ChatManager } from "../ChatManager";
+import type { ChatManager,EnrichedMessage  } from "../ChatManager";
 
 import { ChatProvider } from "./ChatContext";
 import { FullScreenChat } from "./FullScreenChat";
@@ -37,54 +38,37 @@ export const ChatRoom = ({
   setRequested,
   setSpam,
   setBlocked,
-}: ChatRoomProps) => {
+  dialectThreadId = {},
+}: any) => {
   const [chatManager, setChatManager] = useState<ChatManager | null>(null);
   // TODO: Make state propogte from outside the state since this'll be expensive
   const [chats, setChats] = useState<EnrichedMessage[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
+
+  const {
+    messages,
+    isFetchingMessages: loading,
+    send,
+  } = useThreadMessages({
+    id: dialectThreadId,
+    refreshInterval: 2000,
+  });
 
   useEffect(() => {
-    if (roomId) {
-      const chatManager = new ChatManager(
-        userId,
-        roomId,
-        type,
-        (messages) => {
-          setLoading(false);
-          setChats((m) => [...m, ...messages]);
-        },
-        (messages) => {
-          setChats((m) => [...messages, ...m]);
-        },
-        (messages) => {
-          setChats((m) =>
-            m.map((message) => {
-              if (message.uuid !== userId) {
-                return message;
-              }
-              const receivedMessage = messages.find(
-                (x) => x.client_generated_uuid === message.client_generated_uuid
-              );
-              if (receivedMessage) {
-                return {
-                  ...message,
-                  received: true,
-                };
-              }
-              return message;
-            })
-          );
-        }
-      );
-
-      setChatManager(chatManager);
-
-      return () => {
-        chatManager.destroy();
+    const enrichedMessages: EnrichedMessage[] = messages.map((msg) => {
+      return {
+        id: msg.timestamp.getTime(),
+        created_at: msg.timestamp.toString(),
+        direction: msg.author.address === remoteUserId ? "recv" : "send",
+        username: "none",
+        image: "",
+        message_kind: "text",
+        message: msg.text,
       };
-    }
-    return () => {};
-  }, [roomId]);
+    });
+    enrichedMessages.sort((a, b) => a.id - b.id);
+    setChats(enrichedMessages);
+  }, [messages]);
 
   return (
     <ChatProvider
@@ -105,7 +89,12 @@ export const ChatRoom = ({
       setSpam={setSpam}
       setBlocked={setBlocked}
     >
-      <FullScreenChat />
+      <FullScreenChat
+        dialectThreadId={dialectThreadId}
+        onSend={(text) => {
+          send({ text, deduplicationId: generateUniqueId() });
+        }}
+      />
     </ChatProvider>
   );
 };

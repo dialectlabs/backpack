@@ -118,7 +118,16 @@ function MessagesPage() {
 function ChatPage() {
   const { props } = useDecodedSearchParams();
   // @ts-ignore
-  return <NavScreen component={<ChatScreen userId={props.userId} />} />;
+  return (
+    <NavScreen
+      component={
+        <ChatScreen
+          userId={props.userId}
+          dialectThreadId={props.dialectThreadId}
+        />
+      }
+    />
+  );
 }
 
 function RequestsPage() {

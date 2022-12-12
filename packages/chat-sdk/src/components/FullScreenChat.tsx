@@ -10,7 +10,7 @@ import { MessagesSkeleton } from "./MessagesSkeleton";
 import { ScrollBarImpl } from "./ScrollbarImpl";
 import { SendMessage } from "./SendMessage";
 import { useStyles } from "./styles";
-export const FullScreenChat = () => {
+export const FullScreenChat = ({ dialectThreadId, onSend }: any) => {
   const { chatManager, loading, areFriends, requested, chats } =
     useChatContext();
   const [autoScroll, setAutoScroll] = useState(true);
@@ -68,7 +68,7 @@ export const FullScreenChat = () => {
         </div>
       </ScrollBarImpl>
       <div style={{ position: "absolute", bottom: 0, width: "100%" }}>
-        <SendMessage messageRef={messageRef} />
+        <SendMessage dialectThreadId={dialectThreadId} onSend={onSend} />
       </div>
     </div>
   );

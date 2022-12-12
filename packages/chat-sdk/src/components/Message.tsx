@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { createStyles, makeStyles } from "@mui/styles";
-import { Gif as GifComponent } from "@giphy/react-components";
 import { GiphyFetch } from "@giphy/js-fetch-api";
+import { Gif as GifComponent } from "@giphy/react-components";
+import { createStyles, makeStyles } from "@mui/styles";
+
 import { useChatContext } from "./ChatContext";
 
 // use @giphy/js-fetch-api to fetch gifs, instantiate with your api key
@@ -190,7 +191,7 @@ export function ChatMessages() {
   return (
     <div>
       {chats.map((chat) => {
-        if (chat.uuid !== userId) {
+        if (chat.direction === "recv") {
           return (
             <>
               <MessageLeft

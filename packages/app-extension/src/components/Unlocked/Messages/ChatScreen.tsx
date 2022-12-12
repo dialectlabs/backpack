@@ -3,45 +3,48 @@ import type { Friendship } from "@coral-xyz/common";
 import { friendship, useUser } from "@coral-xyz/recoil";
 import { useRecoilState } from "recoil";
 
-export const ChatScreen = ({ userId }: { userId: string }) => {
-  const [friendshipValue, setFriendshipValue] =
-    useRecoilState<Friendship | null>(friendship({ userId }));
+export const ChatScreen = ({ userId, dialectThreadId }: any) => {
+  // const [friendshipValue, setFriendshipValue] =
+  //   useRecoilState<Friendship | null>(friendship({ userId }));
   const { uuid, username } = useUser();
 
-  if (!friendshipValue) {
-    console.error(`Friendship not found with user ${userId}`);
-    return <div></div>;
-  }
+  // if (!friendshipValue) {
+  //   console.error(`Friendship not found with user ${userId}`);
+  //   return <div></div>;
+  // }
+
   return (
     <div>
       <ChatRoom
+        //@ts-ignore
+        dialectThreadId={dialectThreadId}
         type={"individual"}
         username={username || ""}
-        roomId={friendshipValue.id}
+        // roomId={friendshipValue.id}
         userId={uuid}
-        areFriends={friendshipValue.areFriends}
-        requested={friendshipValue.requested}
+        // areFriends={friendshipValue.areFriends}
+        // requested={friendshipValue.requested}
         remoteUserId={userId}
-        blocked={friendshipValue.blocked}
-        spam={friendshipValue.spam}
-        setRequested={(updatedValue: boolean) =>
-          setFriendshipValue((x: any) => ({
-            ...x,
-            requested: updatedValue,
-          }))
-        }
-        setSpam={(updatedValue: boolean) =>
-          setFriendshipValue((x: any) => ({
-            ...x,
-            spam: updatedValue,
-          }))
-        }
-        setBlocked={(updatedValue: boolean) =>
-          setFriendshipValue((x: any) => ({
-            ...x,
-            blocked: updatedValue,
-          }))
-        }
+        // blocked={friendshipValue.blocked}
+        // spam={friendshipValue.spam}
+        // setRequested={(updatedValue: boolean) =>
+        //   setFriendshipValue((x: any) => ({
+        //     ...x,
+        //     requested: updatedValue,
+        //   }))
+        // }
+        // setSpam={(updatedValue: boolean) =>
+        //   setFriendshipValue((x: any) => ({
+        //     ...x,
+        //     spam: updatedValue,
+        //   }))
+        // }
+        // setBlocked={(updatedValue: boolean) =>
+        //   setFriendshipValue((x: any) => ({
+        //     ...x,
+        //     blocked: updatedValue,
+        //   }))
+        // }
       />
     </div>
   );

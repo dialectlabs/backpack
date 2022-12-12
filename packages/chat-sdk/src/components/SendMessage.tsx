@@ -1,15 +1,17 @@
-import { IconButton, TextField } from "@mui/material";
-import GifIcon from "@mui/icons-material/Gif";
-import { createStyles, makeStyles } from "@mui/styles";
-import { useChatContext } from "./ChatContext";
 import { useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import SendIcon from "@mui/icons-material/Send";
-import EmojiPicker, { Theme } from "emoji-picker-react";
-import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
 import { useDarkMode } from "@coral-xyz/recoil";
-import { Carousel } from "@giphy/react-components";
+import { ThreadId, useDialectSdk } from "@dialectlabs/react-sdk";
 import { GiphyFetch } from "@giphy/js-fetch-api";
+import { Carousel } from "@giphy/react-components";
+import GifIcon from "@mui/icons-material/Gif";
+import SendIcon from "@mui/icons-material/Send";
+import SentimentVerySatisfiedIcon from "@mui/icons-material/SentimentVerySatisfied";
+import { IconButton, TextField } from "@mui/material";
+import { createStyles, makeStyles } from "@mui/styles";
+import EmojiPicker, { Theme } from "emoji-picker-react";
+import { v4 as uuidv4 } from "uuid";
+
+import { useChatContext } from "./ChatContext";
 
 // use @giphy/js-fetch-api to fetch gifs, instantiate with your api key
 const gf = new GiphyFetch("SjZwwCn1e394TKKjrMJWb2qQRNcqW8ro");
@@ -77,32 +79,36 @@ const useStyles = makeStyles((theme: any) =>
   })
 );
 
-export const SendMessage = ({ messageRef }: any) => {
+export const SendMessage = ({ dialectThreadId, onSend }: any) => {
   const classes = useStyles();
   const [messageContent, setMessageContent] = useState("");
   const [emojiPicker, setEmojiPicker] = useState(false);
   const [gifPicker, setGifPicker] = useState(false);
   const { chatManager, setChats, userId, username } = useChatContext();
   const isDarkMode = useDarkMode();
+  const sdk = useDialectSdk();
 
-  const sendMessage = (messageTxt, messageKind: "text" | "gif" = "text") => {
-    if (chatManager && messageTxt) {
-      const client_generated_uuid = uuidv4();
-      chatManager?.send(messageTxt, client_generated_uuid, messageKind);
-      setChats((x) => [
-        ...x,
-        {
-          message: messageTxt,
-          client_generated_uuid,
-          received: false,
-          uuid: userId,
-          message_kind: messageKind,
-          username,
-          image: `https://avatars.xnfts.dev/v1/${username}`,
-        },
-      ]);
-      setMessageContent("");
-    }
+  const sendMessage = async (
+    messageTxt,
+    messageKind: "text" | "gif" = "text"
+  ) => {
+    // if (chatManager && messageTxt) {
+    //   const client_generated_uuid = uuidv4();
+    //   chatManager?.send(messageTxt, client_generated_uuid, messageKind);
+    //   setChats((x) => [
+    //     ...x,
+    //     {
+    //       message: messageTxt,
+    //       client_generated_uuid,
+    //       received: false,
+    //       uuid: userId,
+    //       message_kind: messageKind,
+    //       username,
+    //       image: `https://avatars.xnfts.dev/v1/${username}`,
+    //     },
+    //   ]);
+    onSend(messageTxt);
+    setMessageContent("");
   };
 
   useEffect(() => {
@@ -160,7 +166,7 @@ export const SendMessage = ({ messageRef }: any) => {
                   onClick={() => setEmojiPicker((x) => !x)}
                 />{" "}
               </IconButton>
-              <IconButton>
+              {/* <IconButton>
                 {" "}
                 <GifIcon
                   className={classes.sendIcon}
@@ -168,12 +174,12 @@ export const SendMessage = ({ messageRef }: any) => {
                     setGifPicker((x) => !x);
                   }}
                 />{" "}
-              </IconButton>
+              </IconButton> */}
               <IconButton>
                 {" "}
                 <SendIcon
                   className={classes.sendIcon}
-                  onClick={sendMessage}
+                  onClick={() => sendMessage(messageContent)}
                 />{" "}
               </IconButton>
             </>

@@ -7,6 +7,11 @@ import {
 } from "@coral-xyz/common";
 import { useNavigation } from "@coral-xyz/recoil";
 import { styles } from "@coral-xyz/themes";
+import {
+  useDialectSdk,
+  useDialectWallet,
+  useThreads,
+} from "@dialectlabs/react-sdk";
 import AddIcon from "@mui/icons-material/Add";
 
 import { TextInput } from "../../common/Inputs";
@@ -16,24 +21,41 @@ import { MessagesSkeleton } from "./MessagesSkeleton";
 import { NewMessageModal } from "./NewMessageModal";
 import { useStyles } from "./styles";
 
+function shortenAddress(address: string, chars = 4): string {
+  const addr = address.toString();
+  return `${addr.substring(0, chars)}...${addr.substring(addr.length - chars)}`;
+}
+
 export function Inbox() {
   const classes = useStyles();
   const [searchFilter, setSearchFilter] = useState("");
-  const [messagesLoading, setMessagesLoading] = useState(true);
   const [activeChats, setActiveChats] = useState<EnrichedInboxDb[]>([]);
   const [newSettingsModal, setNewSettingsModal] = useState(false);
   const { push } = useNavigation();
 
-  const init = async () => {
-    const res = await fetch(`${BACKEND_API_URL}/inbox?areConnected=true`);
-    const json = await res.json();
-    setMessagesLoading(false);
-    setActiveChats(json.chats || []);
-  };
+  const { threads: dialectThreads, isFetchingThreads } = useThreads({
+    refreshInterval: 10000,
+  });
 
   useEffect(() => {
-    init();
-  }, []);
+    const eids: EnrichedInboxDb[] = dialectThreads.map((t) => {
+      const otherMember = t.otherMembers[0];
+      return {
+        dialectThreadId: t.id,
+        remoteUserId: otherMember.address,
+        are_friends: false,
+        remoteUserImage:
+          "https://dialect-file-storage.s3.us-west-2.amazonaws.com/dapp-avatars/dialect.png",
+        remoteUsername: shortenAddress(otherMember.address),
+        user1: "user1",
+        user2: "user2",
+        last_message_sender: t.lastMessage?.author.address,
+        last_message_timestamp: t.lastMessage?.timestamp.toString(),
+        last_message: t.lastMessage?.text,
+      };
+    });
+    setActiveChats(eids);
+  }, [dialectThreads]);
 
   return (
     <div className={classes.container}>
@@ -59,16 +81,16 @@ export function Inbox() {
         }}
       >
         <div style={{ display: "flex" }}>
-          <div className={classes.text}>New Message</div>{" "}
-          <div
+          <div className={classes.text}>Threads</div>{" "}
+          {/* <div
             className={classes.roundBtn}
             onClick={() => setNewSettingsModal(true)}
           >
             {" "}
             <AddIcon className={classes.add} />{" "}
-          </div>
+          </div> */}
         </div>
-        <div>
+        {/* <div>
           <div
             className={classes.text}
             style={{ cursor: "pointer" }}
@@ -82,10 +104,10 @@ export function Inbox() {
           >
             View Requests
           </div>
-        </div>
+        </div> */}
       </div>
-      {messagesLoading && <MessagesSkeleton />}
-      {!messagesLoading && (
+      {isFetchingThreads && <MessagesSkeleton />}
+      {!isFetchingThreads && (
         <MessageList
           activeChats={activeChats.filter((x) =>
             x.remoteUsername.includes(searchFilter)
